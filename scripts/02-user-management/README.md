@@ -11,7 +11,7 @@ Creating and managing users in the system with ease
 
 ## Usage
 
-- chmod +x ./user_provision
+- chmod +x ./provision_user.sh
 
 
 ## Skills demonstrated
