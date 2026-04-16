@@ -28,3 +28,15 @@ if id "$USERNAME" &>/dev/null 2>&1; then
 	exit 1
 fi
 
+useradd -m -u "$USER_UID" "$USERNAME"
+
+if [ $? -ne 0 ]; then
+	echo "Error: failed to create a user $USERNAME"
+	exit 1
+fi
+
+usermod -aG "$USER_GROUP" "$USERNAME"
+chage -d 0 "$USERNAME"
+
+echo "$(date) - Created user: $USERNAME | UID: $USER_UID | Group: $USER_GROUP" >> "$LOG_FILE"
+echo "User $USERNAME was created successfully and added to $USER_GROUP"
