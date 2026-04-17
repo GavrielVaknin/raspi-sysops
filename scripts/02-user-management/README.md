@@ -1,19 +1,27 @@
-# 02 - User Provision Script
+# 02 - User Provisioning Script
 
 ## What it does
-
-Creating and managing users in the system with ease
-
-## Information gathered
-
-- whether or not the user is root
-- checking to see if the desired user to be made is already taken
+Creates a new user on the system with a specific UID, assigns them
+to an existing group, and enforces a password change on first login.
+All successful operations are logged with a timestamp.
 
 ## Usage
+sudo ./provision_user.sh <username> <uid> <group>
 
-- chmod +x ./provision_user.sh
+Example:
+sudo ./provision_user.sh johndoe 5002 wheel
 
+## Validation and error handling
+- Must be run as root
+- All three arguments must be provided
+- Target group must already exist
+- Username must not already be taken
+- If any step fails after user creation, the user is deleted (rollback)
+- Only logs on full success
 
 ## Skills demonstrated
-
-- user and groups management
+- Bash scripting with input validation
+- Linux user and group management
+- Exit codes and error handling
+- Rollback logic on failure
+- System logging to /var/log
