@@ -41,7 +41,18 @@ if [ $? -ne 0 ]; then
 fi
 
 usermod -aG "$USER_GROUP" "$USERNAME"
+if [ $? -ne 0 ]; then
+	echo "Error: failed to add $USERNAME to $USER_GROUP"
+	userdel -r "$USERNAME"
+	exit 1
+fi
+
 chage -d 0 "$USERNAME"
+if [ $? -ne 0 ];then
+	echo "Error: failed to set password policy for $USERNAME"
+	userdel -r "$USERNAME"
+	exit 1
+fi
 
 echo "$(date) - Created user: $USERNAME | UID: $USER_UID | Group: $USER_GROUP" >> "$LOG_FILE"
 echo "User $USERNAME was created successfully and added to $USER_GROUP"
