@@ -23,6 +23,11 @@ if [ -z "$USERNAME" ] || [ -z "$USER_UID" ] || [ -z "$USER_GROUP" ]; then
 	exit 1
 fi
 
+if ! getent group "$USER_GROUP" &>/dev/null; then
+	echo "Error: group $USER_GROUP does not exist"
+	exit 1
+fi
+
 if id "$USERNAME" &>/dev/null 2>&1; then
 	echo "Error: user $USERNAME already exists"
 	exit 1
