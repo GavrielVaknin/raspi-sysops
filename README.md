@@ -25,4 +25,4 @@ ALL scripts and configurations are documented with explanations.
 ## Author
 
 Gavriel Vaknin
-Aspiring Linux Sysadmin / DevOps Engineer
+Linux Sysadmin | DevOps Engineer
