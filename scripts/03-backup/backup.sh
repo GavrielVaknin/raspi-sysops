@@ -16,11 +16,23 @@ fi
 
 HOSTNAME=$(hostname)
 DATE=$(date +%Y-%m-%d)
-BACKUP_FILE="${HOSTNAME}-${DATE}.img.gz"
-S3_BUCKET="s3://raspi-gavriel-backup"
+BACKUP_FILE="${HOSTNAME}-${DATE}.tar.gz"
+S3_BUCKET="s3://raspi-backup-gavriel"
 LOG_FILE="/var/log/backup.log"
 
-dd if=/dev/mmcblk0 bs=4M status=progress | gzip > "/tmp/${BACKUP_FILE}"
+# Exclude virtual and runtime filesystem that don't need backing up
+# /proc and /sys - virtual filesystem, created by kernel at boot
+# /tmp - temporary files, not neede after reboot
+# /dev - device files, recreated at boot
+# /run - run time data, recreated at boot
+
+tar -czf "/tmp/${BACKUP_FILE}" \
+	--exclude=/proc \
+	--exclude=/sys \
+	--exclude=/tmp \
+	--exclude=/dev \
+	--exclude=/run \
+	/
 
 if [  $? -ne 0  ]; then
 	echo "Error: backup failed, cleaning up..."
@@ -28,6 +40,8 @@ if [  $? -ne 0  ]; then
 	exit 1
 fi
 
+
+export AWS_SHARED_CREDENTIALS_FILE="/home/GavrielVaknin/.aws/credentials"
 aws s3 cp "/tmp/${BACKUP_FILE}" "${S3_BUCKET}/${BACKUP_FILE}"
 
 if [  $? -ne 0  ]; then
