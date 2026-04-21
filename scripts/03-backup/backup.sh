@@ -50,6 +50,8 @@ if [  $? -ne 0  ]; then
 	exit 1
 fi
 
+rm -f "/tmp/${BACKUP_FILE}"
+
 echo "$(date) - Backup Uploaded: ${BACKUP_FILE}" >> "$LOG_FILE"
 
 echo "Backup complete: ${BACKUP_FILE} uploaded to ${S3_BUCKET}"
