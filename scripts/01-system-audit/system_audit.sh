@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 
 # =============================================
@@ -7,40 +7,50 @@
 # Description: Collects key system info and
 #              saves it to a timestamped report
 # =============================================
+# Requires: systemd, util-linux. Tested on Ubuntu 22.04+, AlmaLinux 9.
+
+set -euo pipefail
 
 REPORT_DIR="$(dirname "$0")/reports"
 mkdir -p "$REPORT_DIR"
 REPORT_FILE="$REPORT_DIR/audit_$(date +%Y-%m-%d_%H-%M-%S).txt"
 
+{
+	echo "===== SYSTEM AUDIT REPORT ====="
+	echo "Date: $(date)"
+	echo ""
+	echo "===== HOSTNAME & OS ====="
+	
+		if command -v hostnamectl >/dev/null 2>&1; then
+			hostnamectl
+		else
+			echo "(hostnamectl command not available on this system)"
+		fi
 
-echo "===== SYSTEM AUDIT REPORT =====" > "$REPORT_FILE"
-echo "Date: $(date)" >> "$REPORT_FILE"
-echo "" >> "$REPORT_FILE"
+	echo ""
+	echo "===== CPU & Memory ====="
+	lscpu | grep -E "Model name|CPU\(s\)"
+	free -h
+	echo ""
+	echo "===== Disk Usage ====="
+	df -h
+	echo ""
+	echo "===== Logged in users ====="
+	who
+	echo ""
+	echo "===== Last 5 logins ====="
+	
+		if command -v last >/dev/null 2>&1; then
+			last -n 5
+		else
+			echo "(last command not available on this system)"
+		fi
 
-echo "--- Hostname & OS ---" >> "$REPORT_FILE"
-hostnamectl >> "$REPORT_FILE"
-echo "" >> "$REPORT_FILE"
-
-echo "--- CPU & Memory ---" >> "$REPORT_FILE"
-lscpu | grep -E "Model name|CPU\(s\)" >> "$REPORT_FILE"
-free -h >> "$REPORT_FILE"
-echo "" >> "$REPORT_FILE"
-
-echo "--- Disk Usage ---" >> "$REPORT_FILE"
-df -h >> "$REPORT_FILE"
-echo "" >> "$REPORT_FILE"
-
-echo "--- Logged in users ---" >> "$REPORT_FILE"
-who >> "$REPORT_FILE"
-echo "" >> "$REPORT_FILE"
-
-echo "--- Last 5 logins ---" >> "$REPORT_FILE"
-last -n 5 >> "$REPORT_FILE"
-echo "" >> "$REPORT_FILE"
-
-echo "--- Running Services ---" >> "$REPORT_FILE"
-systemctl list-units --type=service --state=running >> "$REPORT_FILE"
-echo "" >> "$REPORT_FILE"
+	echo ""
+	echo "===== Running Services ====="
+	systemctl list-units --type=service --state=running
+	echo ""
+} > "$REPORT_FILE"
 
 echo "Audit Complete. Report saved to: $REPORT_FILE"
 
