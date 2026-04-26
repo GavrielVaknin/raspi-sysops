@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 # ==========================================
 # backup.sh - System Backup and S3 upload
 # Author: Gavriel Vaknin
@@ -8,6 +9,8 @@
 #              rollback to a previous known
 #              working state.
 #===========================================
+
+set -euo pipefail
 
 if [  "$EUID" -ne 0 ]; then
 	echo "Error: root access needed."
@@ -19,6 +22,8 @@ DATE=$(date +%Y-%m-%d)
 BACKUP_FILE="${HOSTNAME}-${DATE}.tar.gz"
 S3_BUCKET="s3://raspi-backup-gavriel"
 LOG_FILE="/var/log/backup.log"
+
+trap 'rm -f "/tmp/${BACKUP_FILE}" "/tmp/${BACKUP_FILE}.sha256"' EXIT
 
 # Exclude virtual and runtime filesystem that don't need backing up
 # /proc and /sys - virtual filesystem, created by kernel at boot
@@ -34,23 +39,18 @@ tar -czf "/tmp/${BACKUP_FILE}" \
 	--exclude=/run \
 	/
 
-if [  $? -ne 0  ]; then
-	echo "Error: backup failed, cleaning up..."
-	rm -f "/tmp/${BACKUP_FILE}"
-	exit 1
+sha256sum "/tmp/${BACKUP_FILE}" > "/tmp/${BACKUP_FILE}.sha256"
+
+if [  -n "${SUDO_USER:-}"  ]; then
+	USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+else
+	USER_HOME="/root"
 fi
+export AWS_SHARED_CREDENTIALS_FILE="${USER_HOME}/.aws/credentials"
 
 
-export AWS_SHARED_CREDENTIALS_FILE="/home/GavrielVaknin/.aws/credentials"
 aws s3 cp "/tmp/${BACKUP_FILE}" "${S3_BUCKET}/${BACKUP_FILE}"
-
-if [  $? -ne 0  ]; then
-	echo "Error: S3 upload fail."
-	rm -f "/tmp/${BACKUP_FILE}"
-	exit 1
-fi
-
-rm -f "/tmp/${BACKUP_FILE}"
+aws s3 cp "/tmp/${BACKUP_FILE}.sha256" "${S3_BUCKET}/${BACKUP_FILE}.sha256"
 
 echo "$(date) - Backup Uploaded: ${BACKUP_FILE}" >> "$LOG_FILE"
 
