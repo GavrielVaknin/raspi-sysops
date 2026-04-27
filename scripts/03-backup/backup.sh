@@ -18,7 +18,7 @@ if [  "$EUID" -ne 0 ]; then
 fi
 
 HOSTNAME=$(hostname)
-DATE=$(date +%Y-%m-%d)
+DATE=$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_FILE="${HOSTNAME}-${DATE}.tar.gz"
 S3_BUCKET="s3://raspi-backup-gavriel"
 LOG_FILE="/var/log/backup.log"
@@ -39,7 +39,7 @@ tar -czf "/tmp/${BACKUP_FILE}" \
 	--exclude=/run \
 	/
 
-sha256sum "/tmp/${BACKUP_FILE}" > "/tmp/${BACKUP_FILE}.sha256"
+( cd /tmp && sha256sum "${BACKUP_FILE}" > "${BACKUP_FILE}.sha256" )
 
 if [  -n "${SUDO_USER:-}"  ]; then
 	USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
