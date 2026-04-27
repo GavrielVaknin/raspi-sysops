@@ -1,42 +1,53 @@
-# Backup script
+# 03 - System Backup Script
 
-## This script archieves, compress and uploads a a system image to the cloud
-
-## It backs up all the system files besides the following :
-# /proc, /sys, /tmp, /dev, /run.
-
-
-## Requirements for this script are :
-# AWS credentials, access keys, and other configurations.
-# Use aws configure to place the access key, choose region, and output in json.
-# Also make sure tar is installed
-
-## Please run as sudo
-
-## This script demonstrate the power of a well written script,
-#  to serve us when the system is compromised.# 03 - System Backup Script
-
-## What it does
-Archives, compresses and uploads a full system backup to AWS S3.
-Allows rollback to a previous known working state if something breaks.
+Creates a compressed `tar` archive of the system, computes a SHA256 integrity hash, and uploads both to AWS S3.
 
 ## What it excludes
-- /proc and /sys - virtual filesystems, recreated by kernel at boot
-- /tmp - temporary files, not needed after reboot
-- /dev - device files, recreated at boot
-- /run - runtime data, recreated at boot
+
+- `/proc` and `/sys` — virtual filesystems, recreated by the kernel at boot
+- `/tmp` — temporary files
+- `/dev` — device files, recreated at boot
+- `/run` — runtime data, recreated at boot
 
 ## Requirements
-- AWS CLI installed (sudo dnf install awscli)
-- IAM user with S3 access configured via aws configure
-- tar installed (sudo dnf install tar)
+
+- Linux with `tar` and `sha256sum` (standard on most distros)
+- AWS CLI installed and configured (`aws configure`)
+- IAM user with permission to write to the target S3 bucket
+- Run with `sudo` (needed to read system files like `/etc/shadow`)
+
+Tested on AlmaLinux 9.
 
 ## Usage
+
+```bash
 sudo ./backup.sh
+```
+
+The script reads AWS credentials from the invoking user's home (`~/.aws/credentials`), discovered automatically via `$SUDO_USER`.
+Configure AWS CLI as your normal user before running.
+
+## Restore
+
+A documented single-file restore drill (with SELinux context handling on AlmaLinux) is in [`../../docs/restore-drill.md`](../../docs/restore-drill.md).
+
+Full system restore (rebuilding a working filesystem from the archive) has not been tested.
+Treat this script as a file-recovery and migration tool, not a one-click bare-metal restore.
+
+## Known limitations
+
+- The system is backed up while running, so file consistency is not guaranteed for actively-changing files (databases, logs).
+For consistency, stop services first or use a filesystem snapshot tool (LVM, btrfs).
+- No retention policy is enforced by the script. Set an S3 lifecycle policy on the bucket to control storage costs.
+- No notification is sent on failure. For scheduled runs, wrap with a notification mechanism (email, webhook).
+- The IAM user used here has broad S3 permissions for simplicity. Production setups should scope to a least-privilege policy on the specific bucket only.
 
 ## Skills demonstrated
-- Bash scripting and error handling
-- Linux filesystem knowledge
-- AWS CLI and S3 integration
-- IAM security and least privilege
-- Automated cloud backup
+
+- Bash strict mode (`set -euo pipefail`)
+- EXIT trap for cleanup
+- Subshell pattern for portable file paths
+- Portable credentials handling via `$SUDO_USER`
+- File compression and archival with `tar`
+- Cryptographic integrity verification with `sha256sum`
+- AWS S3 CLI usage
