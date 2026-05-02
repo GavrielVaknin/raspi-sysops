@@ -1,6 +1,6 @@
 # Single-file restore drill
 
-A documented procedure for recovering an individual file from a backup created by [`scripts/03-backup/backup.sh`](../scripts/03-backup/backup.sh).
+A documented procedure for recovering an individual file from a backup created by [`scripts/system-backup/backup.sh`](../scripts/system-backup/backup.sh).
 
 Tested on AlmaLinux 9 with SELinux in enforcing mode, restoring `/etc/hostname` from a real S3 backup.
 
