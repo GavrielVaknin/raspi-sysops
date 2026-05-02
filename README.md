@@ -1,12 +1,16 @@
 # raspi-sysops
 
-Linux sysadmin learning lab — scripts and notes from running AlmaLinux on a Raspberry Pi 5 and Ubuntu on a ThinkPad.
-Each project here is built to reinforce specific concepts from CompTIA A+ and Network+ studies.
+Linux sysadmin learning lab — Bash scripts and notes from running AlmaLinux on a Raspberry Pi 5 and Ubuntu on a ThinkPad.
 
-## Status
+## What's here
 
-Currently studying for **CompTIA A+** and **Network+**, targeting both exams by mid-May 2026.
-Building Bash automation for a homelab while preparing for an entry-level IT role.
+| Project | What it does |
+|---------|--------------|
+| [system-audit](scripts/system-audit/) | Generates a timestamped report of system state — hostname, CPU, memory, disk, users, services |
+| [user-management](scripts/user-management/) | Provisions users with input validation, group checks, and rollback on failure |
+| [system-backup](scripts/system-backup/) | Creates compressed system backups, computes a SHA256 hash, and uploads both to AWS S3 |
+
+A documented [single-file restore drill](docs/restore-drill.md) accompanies the backup script, tested on AlmaLinux 9 with SELinux enforcing.
 
 ## Hardware & lab
 
@@ -14,42 +18,37 @@ Building Bash automation for a homelab while preparing for an entry-level IT rol
 - Lenovo ThinkPad T470, Ubuntu 25.10
 - AWS Free Tier (S3 for off-site backups)
 
-## Projects
-
-| # | Project | What it does |
-|---|---------|--------------|
-| 01 | [System audit](scripts/01-system-audit/) | Generates a timestamped report of system state — hostname, CPU, memory, disk, users, services |
-| 02 | [User management](scripts/02-user-management/) | Provisions users with input validation, group checks, and logging |
-| 03 | [Backup](scripts/03-backup/) | Creates compressed system backups and uploads them to AWS S3 |
-
 ## Skills demonstrated
 
 - Bash scripting with strict mode (`set -euo pipefail`)
 - Portable command detection (`command -v`)
+- EXIT and ERR traps for cleanup and rollback
 - Timestamped logging and report generation
 - Linux system introspection (`hostnamectl`, `lscpu`, `free`, `df`, `systemctl`)
-- User and group provisioning
+- User and group provisioning with validation
 - File compression and archival (`tar`, `gzip`)
-- AWS S3 CLI and IAM policy basics
+- Cryptographic integrity verification (`sha256sum`)
+- AWS S3 CLI usage with portable credential handling
 - Git workflow with Conventional Commits
+- SELinux context management (`restorecon`)
 
 ## Certifications
 
-**Active focus:**
-- CompTIA A+ (target: May 15, 2026)
-- CompTIA Network+ (target: May 20, 2026)
+**Earned:**
+- CompTIA Network+ (April 2026)
 
 **Planned:**
-- Cisco CCNA
+- CompTIA A+
 - CompTIA Security+
-
-## License
-
-MIT — see [LICENSE](LICENSE)
+- Cisco CCNA
 
 ## About
 
 Based in Austin, TX, transitioning into IT from hands-on technical work as a garage door technician.
-Years of diagnosing unfamiliar mechanical systems under time pressure,
-communicating fixes to non-technical customers, and closing tickets the same day — the same workflow as a help desk role,
-applied to a different stack. Open to relocating anywhere in the US for the right role.
+Years of diagnosing unfamiliar mechanical systems under time pressure, communicating fixes to non-technical customers,
+and closing tickets the same day — the same workflow as a help desk role, applied to a different stack.
+Open to relocating anywhere in the US for the right role.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
