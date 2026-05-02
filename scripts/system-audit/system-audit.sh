@@ -2,7 +2,7 @@
 
 
 # =============================================
-# system_audit.sh - Basic Linux System Audit
+# system-audit.sh - Basic Linux System Audit
 # Author: Gavriel Vaknin
 # Description: Collects key system info and
 #              saves it to a timestamped report

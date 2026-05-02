@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# provision_user.sh is a script that allows a user to create a user, UID, and a group all in one line.
-# Usage: sudo ./provision_user.sh <username> <uid> <group>
-# Example: sudo ./provision_user.sh johndoe 5002 wheel
+# provision-user.sh is a script that allows a user to create a user, UID, and a group all in one line.
+# Usage: sudo ./provision-user.sh <username> <uid> <group>
+# Example: sudo ./provision-user.sh johndoe 5002 wheel
 # Author - Gavriel Vaknin
 
 set -euo pipefail
