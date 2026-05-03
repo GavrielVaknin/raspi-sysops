@@ -22,6 +22,11 @@ if [  -z "${USERNAME}"  ] || [  -z "${USER_UID}"  ] || [  -z "${USER_GROUP}"  ];
 	exit 1
 fi
 
+if ! [[  "${USER_UID}" =~ ^[0-9]+$  ]]; then
+	echo "Error: UID must be numeric" >&2
+	exit 1
+fi
+
 if ! getent group "${USER_GROUP}" >/dev/null 2>&1; then
 	echo "Error: group '${USER_GROUP}' does not exist" >&2
 	exit 1
@@ -35,7 +40,13 @@ fi
 useradd -m -u "${USER_UID}" "${USERNAME}"
 trap 'userdel -r "${USERNAME}" 2>/dev/null' ERR
 usermod -aG "${USER_GROUP}" "${USERNAME}"
+
+TEMP_PASS=$(openssl rand -base64 12)
+echo "${USERNAME}:${TEMP_PASS}" | chpasswd
 chage -d 0 "${USERNAME}"
+echo "Temporary password for ${USERNAME}: ${TEMP_PASS}"
+echo "User must change it on the first login"
+
 trap - ERR
 
 echo "$(date) - Created user: ${USERNAME} | UID: ${USER_UID} | Group: ${USER_GROUP}" >> "${LOG_FILE}"
